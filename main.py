@@ -91,9 +91,41 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
         kernel_initializer=initializer,
         kernel_regularizer=regularizer)
 
-    # upsampling of these layer 7
+    # upsampling of layer 7
+    deconv1 = tf.layers.conv2d_transpose(
+        layer7_conv_1x1,
+        num_classes,
+        4,
+        strides=(2, 2),
+        padding='same',
+        kernel_initializer=initializer,
+        kernel_regularizer=regularizer)
 
-    return None
+    # add skip connection of layer 4
+    skip1 = tf.add(layer4_conv_1x1, deconv1)
+
+    # upsampling of skip 1
+    deconv2 = tf.layers.conv2d_transpose(
+        skip1,
+        num_classes,
+        4,
+        strides=(2, 2),
+        padding='same',
+        kernel_initializer=initializer,
+        kernel_regularizer=regularizer)
+
+    skip2 = tf.add(layer3_conv_1x1, deconv2)
+
+    deconv3 = tf.layers.conv2d_transpose(
+        skip2,
+        num_classes,
+        16,
+        strides=(8, 8),
+        padding='same',
+        kernel_initializer=initializer,
+        kernel_regularizer=regularizer)
+
+    return deconv3
 
 
 tests.test_layers(layers)
