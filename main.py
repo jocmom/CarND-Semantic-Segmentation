@@ -168,8 +168,22 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param keep_prob: TF Placeholder for dropout keep probability
     :param learning_rate: TF Placeholder for learning rate
     """
-    # TODO: Implement function
-    pass
+    sess.run(tf.global_variables_initializer())
+
+    for epoch in range(epochs):
+        epoch_loss = 0
+        for image, label in get_batches_fn(batch_size):
+            _, loss = sess.run(
+                [train_op, cross_entropy_loss],
+                feed_dict={
+                    input_image: image,
+                    correct_label: label,
+                    keep_prob: 0.8,
+                    learning_rate: 1e-3
+                }
+            )
+            epoch_loss += loss
+        print("epoch: {:3d}, loss: {:04.4f}".format(epoch, epoch_loss))
 
 
 tests.test_train_nn(train_nn)
