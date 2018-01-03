@@ -5,7 +5,7 @@ import warnings
 from distutils.version import LooseVersion
 import project_tests as tests
 
-
+# hyper parameters
 EPOCHS = 1
 BATCH_SIZE = 5
 KEEP_PROB = 0.8
