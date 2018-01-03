@@ -6,6 +6,11 @@ from distutils.version import LooseVersion
 import project_tests as tests
 
 
+EPOCHS = 1
+BATCH_SIZE = 5
+KEEP_PROB = 0.8
+LEARNING_RATE = 1e-3
+
 # Check TensorFlow Version
 assert LooseVersion(tf.__version__) >= LooseVersion('1.0'),\
     'Please use TensorFlow version 1.0 or newer.\
@@ -170,16 +175,20 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op,
     :param learning_rate: TF Placeholder for learning rate
     """
     sess.run(tf.global_variables_initializer())
+    batch = 0
 
     for epoch in range(epochs):
         epoch_loss = 0
         for images, labels in get_batches_fn(batch_size):
             _, loss = sess.run(
                 [train_op, cross_entropy_loss],
-                feed_dict={input_image: images, correct_label: labels, keep_prob: 0.8, learning_rate: 1e-3}
+                feed_dict={input_image: images, correct_label: labels,
+                           keep_prob: KEEP_PROB, learning_rate: LEARNING_RATE}
             )
+            print("batch: {:3d}, loss: {:04.4f}".format(batch, loss))
+            batch += 1
             epoch_loss += loss
-        print("epoch: {:3d}, loss: {:04.4f}".format(epoch, epoch_loss))
+        print("EPOCH: {:3d}, loss: {:04.4f}".format(epoch, epoch_loss))
 
 
 tests.test_train_nn(train_nn)
@@ -191,9 +200,6 @@ def run():
     data_dir = './data'
     runs_dir = './runs'
     tests.test_for_kitti_dataset(data_dir)
-    epochs = 1
-    batch_size = 5
-    learning_rate = tf.placeholder(tf.float32)
 
     # Download pretrained vgg model
     helper.maybe_download_pretrained_vgg(data_dir)
@@ -218,6 +224,7 @@ def run():
 
         nn_last_layer = layers(layer3_out, layer4_out, layer7_out, num_classes)
 
+        learning_rate = tf.placeholder(tf.float32, name='learning_rate')
         correct_label = tf.placeholder(
             tf.int32,
             [None, image_shape[0], image_shape[1], num_classes],
@@ -234,8 +241,8 @@ def run():
         # Train NN using the train_nn function
         train_nn(
             sess,
-            epochs,
-            batch_size,
+            EPOCHS,
+            BATCH_SIZE,
             get_batches_fn,
             train_op,
             cross_entropy_loss,
