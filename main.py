@@ -6,7 +6,7 @@ from distutils.version import LooseVersion
 import project_tests as tests
 
 # hyper parameters
-EPOCHS = 1
+EPOCHS = 20
 BATCH_SIZE = 5
 KEEP_PROB = 0.8
 LEARNING_RATE = 1e-3
